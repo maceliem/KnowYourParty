@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://cjbm2wdx6dtb8"]
+
+[ext_resource type="Script" path="res://promt.gd" id="1_73dva"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Test" type="Control" parent="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("1_73dva")
+category = "Athletic"
+Dansk = "Kan [1] hoppe"
+English = "Can [Player 1] jump"

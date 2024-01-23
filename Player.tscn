@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3 uid="uid://04smloyspbcj"]
+
+[ext_resource type="Script" path="res://Player.gd" id="1_12u3b"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_12u3b")
+
+[node name="VBoxContainer" type="VSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 64
+split_offset = 320
+
+[node name="PromtBox" type="CenterContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/PromtBox"]
+layout_mode = 2
+
+[node name="SubmitBox" type="HBoxContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="BetBox" type="VBoxContainer" parent="VBoxContainer/SubmitBox"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Label" type="Label" parent="VBoxContainer/SubmitBox/BetBox"]
+layout_mode = 2
+text = "Bet"
+horizontal_alignment = 1
+
+[node name="Bool" type="VBoxContainer" parent="VBoxContainer/SubmitBox/BetBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Yes" type="Button" parent="VBoxContainer/SubmitBox/BetBox/Bool"]
+layout_mode = 2
+toggle_mode = true
+text = "Yes"
+
+[node name="No" type="Button" parent="VBoxContainer/SubmitBox/BetBox/Bool"]
+layout_mode = 2
+toggle_mode = true
+text = "No"
+
+[node name="PickOne" type="OptionButton" parent="VBoxContainer/SubmitBox/BetBox"]
+visible = false
+layout_mode = 2
+
+[node name="AnswerBox" type="VBoxContainer" parent="VBoxContainer/SubmitBox"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Label" type="Label" parent="VBoxContainer/SubmitBox/AnswerBox"]
+layout_mode = 2
+text = "Answer"
+
+[node name="Bool" type="VBoxContainer" parent="VBoxContainer/SubmitBox/AnswerBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="YesSubmit" type="Button" parent="VBoxContainer/SubmitBox/AnswerBox/Bool"]
+layout_mode = 2
+text = "Yes"
+
+[node name="NoSubmit" type="Button" parent="VBoxContainer/SubmitBox/AnswerBox/Bool"]
+layout_mode = 2
+text = "No"
+
+[node name="PickOne" type="OptionButton" parent="VBoxContainer/SubmitBox/AnswerBox"]
+visible = false
+layout_mode = 2
+
+[connection signal="pressed" from="VBoxContainer/SubmitBox/BetBox/Bool/Yes" to="." method="_on_yes_pressed"]
+[connection signal="pressed" from="VBoxContainer/SubmitBox/BetBox/Bool/No" to="." method="_on_no_pressed"]
+[connection signal="pressed" from="VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit" to="." method="_on_yes_submit_pressed"]
+[connection signal="pressed" from="VBoxContainer/SubmitBox/AnswerBox/Bool/NoSubmit" to="." method="_on_no_submit_pressed"]
