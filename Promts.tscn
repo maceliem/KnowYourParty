@@ -4,16 +4,31 @@
 
 [node name="Control" type="Control"]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="Athletic" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 105.0
+offset_bottom = 49.0
+theme_override_constants/separation = 32
 
-[node name="Test" type="Control" parent="VBoxContainer"]
+[node name="Jump" type="Control" parent="Athletic"]
 layout_mode = 2
 script = ExtResource("1_73dva")
 category = "Athletic"
-Dansk = "Kan [0] hoppe"
-English = "Can [0] jump"
+AffectedPlayers = 2
+answerType = "Person"
+Dansk = "Hvem kan hoppe højest imellem [0] og [1]"
+English = "Who jumps the highest between [0] and [1]"
+
+[node name="Armbøjninger" type="Control" parent="Athletic"]
+layout_mode = 2
+script = ExtResource("1_73dva")
+category = "Athletic"
+answerType = "Bool"
+Dansk = "Kan [0] lave 10 armbøjninger på en gang"
+English = "Can [0] do 10 push ups in one go"

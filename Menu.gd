@@ -85,6 +85,7 @@ func gotIn():
 	$Menu.visible = false
 	$NameList.visible = true
 	$Categories.visible = true
+	player.get_node("Navn").text = $Menu/Name.text
 
 @rpc("authority","call_local","reliable")
 func startGame():
