@@ -211,10 +211,14 @@ func newRound():
 	$VBoxContainer/SubmitBox/BetBox.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
 	$VBoxContainer/SubmitBox/BetBox/PickOne.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Bool/No.button_pressed = false
+	$VBoxContainer/SubmitBox/BetBox/Bool/Yes.button_pressed = false
 	$VBoxContainer/SubmitBox/AnswerBox.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Submit.visible = true
+	$VBoxContainer/SubmitBox/AnswerBox/Bool/NoSubmit.button_pressed = false
+	$VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed = false
 	
 	if multiplayer.is_server():
 		var n := randi()% len(promtList)

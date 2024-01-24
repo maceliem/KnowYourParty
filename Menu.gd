@@ -95,9 +95,9 @@ func startGame():
 	player.begin()
 	
 func _on_player_connected(id):
-	for child in $NameList.get_children():
-		addPlayer.rpc_id(id, child.text)
 	if multiplayer.is_server():
+		for child in $NameList.get_children():
+			addPlayer.rpc_id(id, child.text)
 		joinGame.rpc_id(id, multiplayer.get_unique_id(), player.categories)
 	
 @rpc("any_peer","call_local","reliable")
