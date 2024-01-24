@@ -29,8 +29,6 @@ func _ready():
 		hbox.add_child(label)
 		
 func categoryPressed(button:CheckButton, category:String):
-	print(button.button_pressed)
-	print(category)
 	player.categories[category] = button.button_pressed
 	updateCategories.rpc(category, button.button_pressed)
 
@@ -39,6 +37,7 @@ func updateCategories(category, state):
 	for child in $Categories.get_children():
 		if child.get_child(0).name == category:
 			child.get_child(0).button_pressed = state
+			player.categories[category] = state
 
 func _on_host_pressed():
 	# Start as server.
@@ -50,6 +49,7 @@ func _on_host_pressed():
 		OS.alert("Failed to start multiplayer server.")
 		return
 	multiplayer.multiplayer_peer = peer
+	player.playerList[multiplayer.get_unique_id()] = $Menu/Name.text
 	addPlayer($Menu/Name.text)
 	gotIn()
 	
@@ -88,7 +88,6 @@ func gotIn():
 
 @rpc("authority","call_local","reliable")
 func startGame():
-	player.name = $Menu/Name.text
 	$NameList.visible = false
 	$Categories.visible = false
 	player.visible = true
@@ -97,11 +96,22 @@ func startGame():
 func _on_player_connected(id):
 	for child in $NameList.get_children():
 		addPlayer.rpc_id(id, child.text)
-	joinGame.rpc_id(id)
+	if multiplayer.is_server():
+		joinGame.rpc_id(id, multiplayer.get_unique_id(), player.categories)
 	
-@rpc("authority","call_local","reliable")
-func joinGame():
+@rpc("any_peer","call_local","reliable")
+func joinGame(serverID, categories):
 	addPlayer.rpc($Menu/Name.text)
+	addPlayerToPlayerlist.rpc_id(serverID, multiplayer.get_unique_id(), $Menu/Name.text)
+	for category in categories.keys():
+		for child in $Categories.get_children():
+			if child.get_child(1).text == category:
+				var button:CheckButton = child.get_child(0)
+				button.button_pressed = categories[category]
+
+@rpc("any_peer","call_local","reliable")
+func addPlayerToPlayerlist(id, name):
+	player.playerList[id] = name
 
 func _on_player_disconnected(id):
 	pass

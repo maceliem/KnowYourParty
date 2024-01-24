@@ -14,23 +14,38 @@ var categories = {
 	"NSFW": false,
 	"Sexual": false,
 }
+var playerList := {}
 
 func begin():
+	for split in promtScene.get_children():
+		for child in split.get_children():
+			if categories[child.category]:
+				promtList.push_back(child)
 	if multiplayer.is_server():
-		for split in promtScene.get_children():
-			for child in split.get_children():
-				if categories[child.category]:
-					promtList.push_back(child)
-		print(promtList)
-		newPromt.rpc(promtList[0])
+		print(playerList)
+		randomize()
+		var n := randi()% len(promtList)
+		var promt:Promt = promtList[n]
+		var targetPlayers := []
+		for i in promt.AffectedPlayers:
+			var id = playerList.keys()[randi() % len(playerList)]
+			while id in targetPlayers:
+				id = playerList.keys()[randi() % len(playerList)]
+			targetPlayers.push_back({"id":id, "name":playerList[id]})
+		newPromt.rpc(n, targetPlayers)
 
 @rpc("any_peer","call_local","reliable")
-func newPromt(promt:Promt):
+func newPromt(n:int, players:Array):
+	var promt:Promt = promtList[n]
+	promtList.remove_at(n)
+	for i in len(players):
+		promt.TargetedPlayers[players[i].id] = players[i].name
+		promt[lang] = promt[lang].replace("["+ str(i) +"]", players[i].name)
 	$VBoxContainer/PromtBox/Label.text = promt[lang]
 	
 	# If player needs to bet
-	if !promt.TargetedPlayers.keys().has(self) or promt.EveryoneBet:
-		$VBoxContainer/SubmitBox.visible = true
+	if !promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()) or promt.EveryoneBet:
+		$VBoxContainer/SubmitBox/BetBox.visible = true
 		if promt.AffectedPlayers == 1:
 			$VBoxContainer/SubmitBox/BetBox/Bool.visible = true
 		else:
@@ -42,7 +57,7 @@ func newPromt(promt:Promt):
 			$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = true
 			
 	# If player is challanged
-	if promt.TargetedPlayers.keys().has(self):
+	if promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()):
 		$VBoxContainer/SubmitBox/AnswerBox.visible = true
 		if promt.AffectedPlayers == 1:
 			$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = true

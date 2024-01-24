@@ -15,5 +15,5 @@ offset_bottom = 40.0
 layout_mode = 2
 script = ExtResource("1_73dva")
 category = "Athletic"
-Dansk = "Kan [1] hoppe"
-English = "Can [Player 1] jump"
+Dansk = "Kan [0] hoppe"
+English = "Can [0] jump"
