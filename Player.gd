@@ -11,8 +11,9 @@ var categories = {
 	"Basic": false,
 	"Athletic": false,
 	"Drinking": false,
-	"NSFW": false,
+	"Naughty": false,
 	"Sexual": false,
+	"Most likely":false
 }
 var playerList := {}
 
@@ -26,6 +27,8 @@ func begin():
 	for split in promtScene.get_children():
 		for child in split.get_children():
 			if categories[child.category] and child.visible and split.visible and (child.AffectedPlayers < len(playerList.keys()) or (child.AffectedPlayers <= len(playerList.keys())and child.allAffectedAnswer)):
+				if child.AffectedPlayers == 0:
+					child.AffectedPlayers = len(playerList.keys())
 				promtList.push_back(child)
 	if multiplayer.is_server():
 		randomize()
