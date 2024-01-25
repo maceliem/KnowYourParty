@@ -25,7 +25,7 @@ var points := 0
 func begin():
 	for split in promtScene.get_children():
 		for child in split.get_children():
-			if categories[child.category]:
+			if categories[child.category] and child.visible and split.visible and (child.AffectedPlayers < len(playerList.keys()) or (child.AffectedPlayers <= len(playerList.keys())and child.allAffectedAnswer)):
 				promtList.push_back(child)
 	if multiplayer.is_server():
 		randomize()
@@ -62,7 +62,7 @@ func newPromt(n:int, players:Array):
 			$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = true
 			
 	# If player is challanged
-	if (promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()) and promt.allAffectedAnswer) or promt.TargetedPlayers.keys()[0] == multiplayer.get_unique_id():
+	if (promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()) and promt.allAffectedAnswer) or promt.TargetedPlayers.keys()[promt.whoAnswers] == multiplayer.get_unique_id():
 		$VBoxContainer/SubmitBox/AnswerBox.visible = true
 		if promt.answerType == "Bool":
 			$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = true
