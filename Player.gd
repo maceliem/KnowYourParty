@@ -71,6 +71,9 @@ func newPromt(n:int, players:Array):
 			$VBoxContainer/SubmitBox/AnswerBox/PickOne.clear
 			for player in promt.TargetedPlayers.keys():
 				$VBoxContainer/SubmitBox/AnswerBox/PickOne.add_item(promt.TargetedPlayers[player])
+		elif promt.answerType == "Number":
+			$VBoxContainer/SubmitBox/AnswerBox/Number.visible = true
+			$VBoxContainer/SubmitBox/AnswerBox/Number.text = ""
 
 func _on_yes_pressed():
 	$VBoxContainer/SubmitBox/BetBox/Bool/Yes.disabled = true
@@ -99,45 +102,68 @@ func _on_no_submit_pressed():
 func _on_submit_pressed():
 	$VBoxContainer/SubmitBox/AnswerBox/Submit.visible = false
 	if promt.answerType == "Bool":
-		submitted.rpc($VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed)
+		submitted.rpc($VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed,multiplayer.get_unique_id())
 	elif promt.answerType == "Person":
-		submitted.rpc($VBoxContainer/SubmitBox/AnswerBox/PickOne.get_item_text($VBoxContainer/SubmitBox/AnswerBox/PickOne.get_selected_id()))
+		submitted.rpc($VBoxContainer/SubmitBox/AnswerBox/PickOne.get_item_text($VBoxContainer/SubmitBox/AnswerBox/PickOne.get_selected_id()),multiplayer.get_unique_id())
+	elif promt.answerType == "Number":
+		submitted.rpc(int($VBoxContainer/SubmitBox/AnswerBox/Number.text), multiplayer.get_unique_id())
 
 @rpc("any_peer", "call_local", "reliable")
-func submitted(answer):
+func submitted(answer, id):
 	submittedCount += 1
-	submissionList.push_back(answer)
+	submissionList.push_back({"answer":answer, "person":playerList[id]})
 	
 	#If everyone needs to answer, and they havent
 	if promt.allAffectedAnswer: if submittedCount != promt.AffectedPlayers: return
 	
 	$ResultBox.visible = true
 	if promt.AffectedPlayers == 1:
+		var label := Label.new()
+		if promt.answerType == "Bool":
+			if answer: label.text = "Yes"
+			else: label.text = "no"
+		else: label.text = str(answer)
+		$ResultBox/HBoxContainer/Replies/Bars.add_child(label)
 		if multiplayer.is_server(): 
-			sendSubmit.rpc([answer])
 			$NextPromt.visible = true
+			if promt.answerType == "Number" and promt.betType == "Bool":
+				if (promt.HighestWin and answer >= promt.target) or (!promt.HighestWin and answer <= promt.target):
+					sendSubmit.rpc([true])
+				else:
+					sendSubmit.rpc([false])
+			else:
+				sendSubmit.rpc([answer])
 	else:
-		var options:Array
+		var options:= []
 		if promt.answerType == "Bool":
 			options = [false, true]
 		else: 
-			options = promt.TargetedPlayers.keys()
-		for option in options:
-			var vbox := VBoxContainer.new()
-			$ResultBox/HBoxContainer/Replies/Bars.add_child(vbox)
-			var progress := ProgressBar.new()
-			progress.max_value = submittedCount
-			vbox.add_child(progress)
-			var label := Label.new()
-			vbox.add_child(label)
-			if promt.answerType == "Bool":
-				if option: label.text = "Yes"
-				else: label.text = "No"
-			else:
-				label.text = promt.TargetedPlayers[option]
-			for response in submissionList:
-				if response == promt.TargetedPlayers[option]:
-					progress.value += 1
+			for point in submissionList:
+				if promt.answerType == "Person":
+					if !point.answer in options:
+						options.push_back(point)
+				elif promt.answerType == "Number":
+					if !point.person in options:
+						options.push_back(point)
+		
+		#If answer graph
+		if promt.answerType == "Bool" or promt.answerType == "Person":
+			for option in options:
+				var vbox := VBoxContainer.new()
+				$ResultBox/HBoxContainer/Replies/Bars.add_child(vbox)
+				var progress := ProgressBar.new()
+				progress.max_value = submittedCount
+				vbox.add_child(progress)
+				var label := Label.new()
+				vbox.add_child(label)
+				if promt.answerType == "Bool":
+					if option: label.text = "Yes"
+					else: label.text = "No"
+				else:
+					label.text = option.person
+				for response in submissionList:
+					if response.answer == option.answer:
+						progress.value += 1
 		
 		if multiplayer.is_server():
 			var highestAnswer = 0
@@ -152,7 +178,7 @@ func submitted(answer):
 					multiple.push_back(i)
 			var answers = []
 			for i in multiple:
-				answers.push_back(promt.TargetedPlayers[options[i]])
+				answers.push_back(options[i].person)
 			sendSubmit.rpc(answers)
 			$NextPromt.visible = true
 
@@ -160,11 +186,11 @@ func submitted(answer):
 func sendSubmit(answers):
 	if $VBoxContainer/SubmitBox/BetBox.visible:
 		for answer in answers:
-			if promt.answerType == "Bool":
+			if promt.betType == "Bool":
 				addGuessBar.rpc($VBoxContainer/SubmitBox/BetBox/Bool/Yes.button_pressed)
 				if $VBoxContainer/SubmitBox/BetBox/Bool/Yes.button_pressed == answer:
 					return point(true)
-			elif promt.answerType == "Person":
+			elif promt.betType == "Person":
 				addGuessBar.rpc($VBoxContainer/SubmitBox/BetBox/PickOne.get_item_text($VBoxContainer/SubmitBox/BetBox/PickOne.get_selected_id()))
 				if $VBoxContainer/SubmitBox/BetBox/PickOne.get_item_text($VBoxContainer/SubmitBox/BetBox/PickOne.get_selected_id()) == answer:
 					return point(true)
@@ -216,9 +242,15 @@ func newRound():
 	$VBoxContainer/SubmitBox/AnswerBox.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/Number.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Submit.visible = true
 	$VBoxContainer/SubmitBox/AnswerBox/Bool/NoSubmit.button_pressed = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed = false
+	for child in $ResultBox/HBoxContainer/Replies/Bars.get_children():
+		$ResultBox/HBoxContainer/Replies/Bars.remove_child(child)
+	for child in $ResultBox/HBoxContainer/Guess/Bars.get_children():
+		$ResultBox/HBoxContainer/Guess/Bars.remove_child(child)
+	
 	
 	if multiplayer.is_server():
 		var n := randi()% len(promtList)

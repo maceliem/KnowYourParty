@@ -93,6 +93,13 @@ layout_mode = 2
 layout_mode = 2
 text = "Submit"
 
+[node name="Number" type="LineEdit" parent="VBoxContainer/SubmitBox/AnswerBox"]
+visible = false
+layout_mode = 2
+placeholder_text = "Number"
+alignment = 1
+virtual_keyboard_type = 2
+
 [node name="ScoreLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 353.0

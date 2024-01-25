@@ -7,8 +7,12 @@ class_name Promt
 ## 0 for everyone
 @export var AffectedPlayers: int = 1
 @export var EveryoneBet := false
-@export_enum("Bool", "Person") var answerType:String
+@export_enum("Bool", "Person") var betType:String
+@export_enum("Bool", "Person", "Number") var answerType:String
+@export var HighestWin:bool
+@export var target:int
 @export var allAffectedAnswer:bool = false
+@export var whoAnswers:int = 0
 
 @export_category("Description")
 @export_multiline var Dansk:String

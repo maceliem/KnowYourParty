@@ -98,12 +98,13 @@ func _on_player_connected(id):
 	if multiplayer.is_server():
 		for child in $NameList.get_children():
 			addPlayer.rpc_id(id, child.text)
-		joinGame.rpc_id(id, multiplayer.get_unique_id(), player.categories)
+		joinGame.rpc_id(id, player.categories, player.playerList)
 	
 @rpc("any_peer","call_local","reliable")
-func joinGame(serverID, categories):
+func joinGame(categories, playerList):
 	addPlayer.rpc($Menu/Name.text)
-	addPlayerToPlayerlist.rpc_id(serverID, multiplayer.get_unique_id(), $Menu/Name.text)
+	player.playerList = playerList
+	addPlayerToPlayerlist.rpc(multiplayer.get_unique_id(), $Menu/Name.text)
 	for category in categories.keys():
 		for child in $Categories.get_children():
 			if child.get_child(1).text == category:
