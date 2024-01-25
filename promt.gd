@@ -3,11 +3,11 @@ extends Control
 class_name Promt
 
 @export_category("Promt Properties")
-@export_enum("Basic", "Athletic", "Drinking", "Naughty", "Sexual", "Most likely") var category:String
+@export_enum("Basic", "Physical", "Drinking", "Romance", "Naughty", "Most likely") var category:String
 ## 0 for everyone
 @export var AffectedPlayers: int = 1
 @export var EveryoneBet := false
-@export_enum("Bool", "Person") var betType:String
+@export_enum("Bool", "Person", "Number") var betType:String
 @export_enum("Bool", "Person", "Number") var answerType:String
 @export var HighestWin:bool
 @export var target:int

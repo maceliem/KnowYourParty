@@ -9,10 +9,10 @@ var promtScene = preload("res://Promts.tscn").instantiate()
 
 var categories = {
 	"Basic": false,
-	"Athletic": false,
+	"Physical": false,
 	"Drinking": false,
+	"Romance": false,
 	"Naughty": false,
-	"Sexual": false,
 	"Most likely":false
 }
 var playerList := {}
@@ -127,6 +127,7 @@ func submitted(answer, id):
 			else: label.text = "no"
 		else: label.text = str(answer)
 		$ResultBox/HBoxContainer/Replies/Bars.add_child(label)
+		
 		if multiplayer.is_server(): 
 			$NextPromt.visible = true
 			if promt.answerType == "Number" and promt.betType == "Bool":
@@ -134,6 +135,8 @@ func submitted(answer, id):
 					sendSubmit.rpc([true])
 				else:
 					sendSubmit.rpc([false])
+			elif promt.answerType == "Number" and promt.betType == "Number":
+				sendCompare.rpc(multiplayer.get_unique_id(), answer)
 			else:
 				sendSubmit.rpc([answer])
 	else:
@@ -219,6 +222,39 @@ func addGuessBar(guess):
 		vbox.add_child(label)
 	$ResultBox/HBoxContainer/Guess/Bars.get_node(str(guess)).get_child(0).value += 1
 
+@rpc("any_peer","call_remote", "reliable")
+func sendCompare(id, answer):
+	if promt.betType == "Numbers":
+		compareBets.rpc_id(id, int($VBoxContainer/SubmitBox/AnswerBox/Number.text), multiplayer.get_unique_id(), answer)
+
+var bets = []
+
+@rpc("any_peer","call_local", "reliable")
+func compareBets(bet, id, answer):
+	bets.push_back({"bet":bet, "id":id})
+	var neededBets 
+	if promt.EveryoneBet: neededBets = len(playerList)
+	else: neededBets = len(playerList) - promt.AffectedPlayers
+	if len(bets) == neededBets:
+		var n:int 
+		var multiple := []
+		for i in len(bets):
+			if n == null: 
+				n = i
+				multiple = [i]
+			elif abs(answer - bets[i].bet) < abs(answer - bets[n].bet):
+				n = i
+				multiple = [bets[i].id]
+			elif abs(answer - bets[i].bet) == abs(answer - bets[n].bet):
+				multiple.push_back(bets[i].id)
+		for person in playerList.keys():
+			if not person in promt.TargetedPlayers:
+				if person in multiple:
+					point.rpc_id(person, true)
+				else:
+					point.rpc_id(person, false)
+
+@rpc("any_peer", "call_local", "reliable")
 func point(correct:bool):
 	if correct:
 		points += 1
@@ -235,6 +271,7 @@ func _on_next_promt_pressed():
 func newRound():
 	submittedCount = 0
 	submissionList = []
+	bets = []
 	$NextPromt.visible = false
 	$ResultBox.visible = false
 	$VBoxContainer/SubmitBox/BetBox.visible = false
