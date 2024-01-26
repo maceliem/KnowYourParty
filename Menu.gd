@@ -20,7 +20,7 @@ func _ready():
 	for category in player.categories:
 		var hbox := HBoxContainer.new()
 		$Categories.add_child(hbox)
-		var button := CheckButton.new()
+		var button := CheckBox.new()
 		button.name = category
 		button.pressed.connect(self.categoryPressed.bind(button, category))
 		hbox.add_child(button)
@@ -28,7 +28,7 @@ func _ready():
 		label.text = category
 		hbox.add_child(label)
 		
-func categoryPressed(button:CheckButton, category:String):
+func categoryPressed(button:CheckBox, category:String):
 	player.categories[category] = button.button_pressed
 	updateCategories.rpc(category, button.button_pressed)
 
@@ -71,7 +71,7 @@ func _on_connect_pressed():
 	multiplayer.multiplayer_peer = peer
 	
 	for child in $Categories.get_children():
-		var button:CheckButton = child.get_child(0)
+		var button:CheckBox = child.get_child(0)
 		button.disabled = true
 	gotIn()
 
@@ -108,8 +108,9 @@ func joinGame(categories, playerList):
 	for category in categories.keys():
 		for child in $Categories.get_children():
 			if child.get_child(1).text == category:
-				var button:CheckButton = child.get_child(0)
+				var button:CheckBox = child.get_child(0)
 				button.button_pressed = categories[category]
+				player.categories[category] = button.button_pressed
 
 @rpc("any_peer","call_local","reliable")
 func addPlayerToPlayerlist(id, name):

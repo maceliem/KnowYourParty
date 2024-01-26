@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://04smloyspbcj"]
+[gd_scene load_steps=3 format=3 uid="uid://04smloyspbcj"]
 
 [ext_resource type="Script" path="res://Player.gd" id="1_12u3b"]
+[ext_resource type="Theme" uid="uid://vv2d5ccakorq" path="res://theme.tres" id="1_exfoe"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -9,6 +10,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(0.9, 0.9)
+pivot_offset = Vector2(270, 480)
+theme = ExtResource("1_exfoe")
 script = ExtResource("1_12u3b")
 
 [node name="VBoxContainer" type="VSplitContainer" parent="."]
@@ -18,14 +22,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(270, 480)
 theme_override_constants/separation = 64
-split_offset = 320
 
-[node name="PromtBox" type="CenterContainer" parent="VBoxContainer"]
+[node name="PromtLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxContainer/PromtBox"]
-layout_mode = 2
+size_flags_vertical = 6
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="SubmitBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -33,8 +37,8 @@ theme_override_constants/separation = 32
 alignment = 1
 
 [node name="BetBox" type="VBoxContainer" parent="VBoxContainer/SubmitBox"]
-visible = false
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 32
 
 [node name="Label" type="Label" parent="VBoxContainer/SubmitBox/BetBox"]
@@ -61,14 +65,23 @@ text = "No"
 visible = false
 layout_mode = 2
 
+[node name="Number" type="LineEdit" parent="VBoxContainer/SubmitBox/BetBox"]
+visible = false
+layout_mode = 2
+placeholder_text = "Number"
+alignment = 1
+virtual_keyboard_type = 2
+
 [node name="AnswerBox" type="VBoxContainer" parent="VBoxContainer/SubmitBox"]
 visible = false
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 32
 
 [node name="Label" type="Label" parent="VBoxContainer/SubmitBox/AnswerBox"]
 layout_mode = 2
 text = "Answer"
+horizontal_alignment = 1
 
 [node name="Bool" type="VBoxContainer" parent="VBoxContainer/SubmitBox/AnswerBox"]
 visible = false
@@ -89,16 +102,16 @@ text = "No"
 visible = false
 layout_mode = 2
 
-[node name="Submit" type="Button" parent="VBoxContainer/SubmitBox/AnswerBox"]
-layout_mode = 2
-text = "Submit"
-
 [node name="Number" type="LineEdit" parent="VBoxContainer/SubmitBox/AnswerBox"]
 visible = false
 layout_mode = 2
 placeholder_text = "Number"
 alignment = 1
 virtual_keyboard_type = 2
+
+[node name="Submit" type="Button" parent="VBoxContainer/SubmitBox/AnswerBox"]
+layout_mode = 2
+text = "Submit"
 
 [node name="ScoreLabel" type="Label" parent="."]
 layout_mode = 0
@@ -109,30 +122,40 @@ offset_bottom = 89.0
 text = "0"
 horizontal_alignment = 2
 
-[node name="ResultBox" type="VBoxContainer" parent="."]
-visible = false
+[node name="ResultBox" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 101.0
-offset_top = 198.0
+offset_top = 177.0
 offset_right = 445.0
-offset_bottom = 492.0
+offset_bottom = 542.0
+color = Color(0.700408, 0.507081, 0.466491, 1)
 
 [node name="ResultLabel" type="Label" parent="ResultBox"]
 layout_mode = 2
+offset_right = 344.0
+offset_bottom = 56.0
+text = "Scores"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="ResultBox"]
-layout_mode = 2
-theme_override_constants/separation = 32
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 56.0
+grow_horizontal = 2
+grow_vertical = 2
 alignment = 1
 
 [node name="Guess" type="VBoxContainer" parent="ResultBox/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ResultBox/HBoxContainer/Guess"]
 layout_mode = 2
 text = "Bets"
+horizontal_alignment = 1
 
 [node name="Bars" type="HBoxContainer" parent="ResultBox/HBoxContainer/Guess"]
 layout_mode = 2
@@ -141,11 +164,12 @@ alignment = 1
 
 [node name="Replies" type="VBoxContainer" parent="ResultBox/HBoxContainer"]
 layout_mode = 2
-alignment = 1
+size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ResultBox/HBoxContainer/Replies"]
 layout_mode = 2
 text = "Answers"
+horizontal_alignment = 1
 
 [node name="Bars" type="HBoxContainer" parent="ResultBox/HBoxContainer/Replies"]
 layout_mode = 2

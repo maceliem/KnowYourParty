@@ -10,33 +10,84 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Athletic" type="VBoxContainer" parent="."]
+[node name="Basic" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Physical" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_right = 105.0
 offset_bottom = 49.0
 theme_override_constants/separation = 32
 
-[node name="Jump" type="Control" parent="Athletic"]
+[node name="Armbøjninger" type="Control" parent="Physical"]
 layout_mode = 2
 script = ExtResource("1_73dva")
-category = "Athletic"
+category = "Physical"
+betType = "Bool"
+answerType = "Bool"
+Dansk = "Kan [0] lave 10 armbøjninger på en gang"
+English = "Can [0] do 10 push ups in one go"
+
+[node name="Drinking" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 392.0
+offset_top = 1.0
+offset_right = 432.0
+offset_bottom = 41.0
+theme_override_constants/separation = 32
+
+[node name="bund" type="Control" parent="Drinking"]
+layout_mode = 2
+script = ExtResource("1_73dva")
+category = "Drinking"
 AffectedPlayers = 2
 betType = "Person"
 answerType = "Person"
-HighestWin = null
-target = null
-whoAnswers = null
-Dansk = "Hvem kan hoppe højest imellem [0] og [1]"
-English = "Who jumps the highest between [0] and [1]"
+Dansk = "Hvem bunder hurtigst [0] eller [1]"
+English = "[0] VS [1], who can finish their current drink first"
 
-[node name="Armbøjninger" type="Control" parent="Athletic"]
+[node name="antalDrukture" type="Control" parent="Drinking"]
 layout_mode = 2
 script = ExtResource("1_73dva")
-category = "Athletic"
-betType = "Bool"
-answerType = "Bool"
-HighestWin = null
-target = null
-whoAnswers = null
-Dansk = "Kan [0] lave 10 armbøjninger på en gang"
-English = "Can [0] do 10 push ups in one go"
+category = "Drinking"
+betType = "Number"
+answerType = "Number"
+Dansk = "Hvor mange gange har [0] været ude og drikke i de sidste 30 dage"
+English = "How many times have [0] been out drinking the last 30 days"
+
+[node name="ageDrunk" type="Control" parent="Drinking"]
+layout_mode = 2
+script = ExtResource("1_73dva")
+category = "Drinking"
+betType = "Number"
+answerType = "Number"
+Dansk = "I hvilken alder blev [0] fuld første gang"
+English = "At what age did [0] get drunk the first time"
+
+[node name="Romance" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 892.0
+offset_top = -1.0
+offset_right = 932.0
+offset_bottom = 39.0
+
+[node name="numberDates" type="Control" parent="Romance"]
+layout_mode = 2
+script = ExtResource("1_73dva")
+category = "Romance"
+betType = "Number"
+answerType = "Number"
+Dansk = "Hvor mange dates har [0] været på i år"
+English = "How many dates have [0] been on this year"
+
+[node name="Naughty" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MostLikely" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0

@@ -23,6 +23,27 @@ var submittedCount := 0
 var submissionList := []
 
 var points := 0
+
+func _ready():
+	$NextPromt.visible = false
+	$ResultBox.visible = false
+	$VBoxContainer/SubmitBox/BetBox.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Bool.visible = false
+	$VBoxContainer/SubmitBox/BetBox/PickOne.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Number.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Number.text = ""
+	$VBoxContainer/SubmitBox/BetBox/Bool/No.button_pressed = false
+	$VBoxContainer/SubmitBox/BetBox/Bool/Yes.button_pressed = false
+	$VBoxContainer/SubmitBox/AnswerBox.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/Number.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/Number.text = ""
+	$VBoxContainer/SubmitBox/AnswerBox/Submit.visible = true
+	$VBoxContainer/SubmitBox/AnswerBox/Bool/NoSubmit.button_pressed = false
+	$VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed = false
+	$ResultBox/HBoxContainer/Guess.visible = true
+
 func begin():
 	for split in promtScene.get_children():
 		for child in split.get_children():
@@ -49,21 +70,22 @@ func newPromt(n:int, players:Array):
 	for i in len(players):
 		promt.TargetedPlayers[players[i].id] = players[i].name
 		promt[lang] = promt[lang].replace("["+ str(i) +"]", players[i].name)
-	$VBoxContainer/PromtBox/Label.text = promt[lang]
+	$VBoxContainer/PromtLabel.text = promt[lang]
 	
 	# If player needs to bet
 	if !promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()) or promt.EveryoneBet:
 		$VBoxContainer/SubmitBox/BetBox.visible = true
-		if promt.answerType == "Bool":
+		if promt.betType == "Bool":
 			$VBoxContainer/SubmitBox/BetBox/Bool.visible = true
-		elif promt.answerType == "Person":
-			$VBoxContainer/SubmitBox/BetBox/PickOne.clear
+		elif promt.betType == "Person":
+			$VBoxContainer/SubmitBox/BetBox/PickOne.clear()
 			for player in promt.TargetedPlayers.keys():
 				$VBoxContainer/SubmitBox/BetBox/PickOne.add_item(promt.TargetedPlayers[player])
-				
+			
 			$VBoxContainer/SubmitBox/BetBox/PickOne.visible = true
 			$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = true
-			
+		elif promt.betType == "Number":
+			$VBoxContainer/SubmitBox/BetBox/Number.visible = true
 	# If player is challanged
 	if (promt.TargetedPlayers.keys().has(multiplayer.get_unique_id()) and promt.allAffectedAnswer) or promt.TargetedPlayers.keys()[promt.whoAnswers] == multiplayer.get_unique_id():
 		$VBoxContainer/SubmitBox/AnswerBox.visible = true
@@ -71,7 +93,7 @@ func newPromt(n:int, players:Array):
 			$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = true
 		elif promt.answerType == "Person":
 			$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = true
-			$VBoxContainer/SubmitBox/AnswerBox/PickOne.clear
+			$VBoxContainer/SubmitBox/AnswerBox/PickOne.clear()
 			for player in promt.TargetedPlayers.keys():
 				$VBoxContainer/SubmitBox/AnswerBox/PickOne.add_item(promt.TargetedPlayers[player])
 		elif promt.answerType == "Number":
@@ -120,6 +142,10 @@ func submitted(answer, id):
 	if promt.allAffectedAnswer: if submittedCount != promt.AffectedPlayers: return
 	
 	$ResultBox.visible = true
+	
+	if promt.betType == "Numbers":
+		$ResultBox/HBoxContainer/Guess.visible = false
+		
 	if promt.AffectedPlayers == 1:
 		var label := Label.new()
 		if promt.answerType == "Bool":
@@ -154,34 +180,44 @@ func submitted(answer, id):
 		
 		#If answer graph
 		if promt.answerType == "Bool" or promt.answerType == "Person":
-			for option in options:
-				var vbox := VBoxContainer.new()
-				$ResultBox/HBoxContainer/Replies/Bars.add_child(vbox)
-				var progress := ProgressBar.new()
-				progress.max_value = submittedCount
-				vbox.add_child(progress)
+			if len(options) > 1:
+				for option in options:
+					var vbox := VBoxContainer.new()
+					$ResultBox/HBoxContainer/Replies/Bars.add_child(vbox)
+					var progress := ProgressBar.new()
+					progress.max_value = submittedCount
+					vbox.add_child(progress)
+					var label := Label.new()
+					vbox.add_child(label)
+					if promt.answerType == "Bool":
+						if option: label.text = "Yes"
+						else: label.text = "No"
+					else:
+						label.text = option.person
+					for response in submissionList:
+						if response.answer == option.answer:
+							progress.value += 1
+			else:
 				var label := Label.new()
-				vbox.add_child(label)
 				if promt.answerType == "Bool":
-					if option: label.text = "Yes"
-					else: label.text = "No"
-				else:
-					label.text = option.person
-				for response in submissionList:
-					if response.answer == option.answer:
-						progress.value += 1
-		
+					if answer: label.text = "Yes"
+					else: label.text = "no"
+				else: label.text = str(answer)
+				$ResultBox/HBoxContainer/Replies/Bars.add_child(label)
+
 		if multiplayer.is_server():
 			var highestAnswer = 0
 			var n
 			var multiple = []
-			for i in len(options):
-				if $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value > highestAnswer:
-					highestAnswer = $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value
-					n = i
-					multiple = [i]
-				elif $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value == highestAnswer:
-					multiple.push_back(i)
+			if len(options) > 1:
+				for i in len(options):
+					if $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value > highestAnswer:
+						highestAnswer = $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value
+						n = i
+						multiple = [i]
+					elif $ResultBox/HBoxContainer/Replies/Bars.get_child(i).get_child(0).value == highestAnswer:
+						multiple.push_back(i)
+			else: multiple = [0]
 			var answers = []
 			for i in multiple:
 				answers.push_back(options[i].person)
@@ -224,8 +260,8 @@ func addGuessBar(guess):
 
 @rpc("any_peer","call_remote", "reliable")
 func sendCompare(id, answer):
-	if promt.betType == "Numbers":
-		compareBets.rpc_id(id, int($VBoxContainer/SubmitBox/AnswerBox/Number.text), multiplayer.get_unique_id(), answer)
+	print("aaa")
+	compareBets.rpc_id(id, int($VBoxContainer/SubmitBox/BetBox/Number.text), multiplayer.get_unique_id(), answer)
 
 var bets = []
 
@@ -235,6 +271,7 @@ func compareBets(bet, id, answer):
 	var neededBets 
 	if promt.EveryoneBet: neededBets = len(playerList)
 	else: neededBets = len(playerList) - promt.AffectedPlayers
+	print(neededBets)
 	if len(bets) == neededBets:
 		var n:int 
 		var multiple := []
@@ -248,7 +285,7 @@ func compareBets(bet, id, answer):
 			elif abs(answer - bets[i].bet) == abs(answer - bets[n].bet):
 				multiple.push_back(bets[i].id)
 		for person in playerList.keys():
-			if not person in promt.TargetedPlayers:
+			if not person in promt.TargetedPlayers.keys():
 				if person in multiple:
 					point.rpc_id(person, true)
 				else:
@@ -275,17 +312,21 @@ func newRound():
 	$NextPromt.visible = false
 	$ResultBox.visible = false
 	$VBoxContainer/SubmitBox/BetBox.visible = false
-	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Bool.visible = false
 	$VBoxContainer/SubmitBox/BetBox/PickOne.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Number.visible = false
+	$VBoxContainer/SubmitBox/BetBox/Number.text = ""
 	$VBoxContainer/SubmitBox/BetBox/Bool/No.button_pressed = false
 	$VBoxContainer/SubmitBox/BetBox/Bool/Yes.button_pressed = false
 	$VBoxContainer/SubmitBox/AnswerBox.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/PickOne.visible = false
 	$VBoxContainer/SubmitBox/AnswerBox/Number.visible = false
+	$VBoxContainer/SubmitBox/AnswerBox/Number.text = ""
 	$VBoxContainer/SubmitBox/AnswerBox/Submit.visible = true
 	$VBoxContainer/SubmitBox/AnswerBox/Bool/NoSubmit.button_pressed = false
 	$VBoxContainer/SubmitBox/AnswerBox/Bool/YesSubmit.button_pressed = false
+	$ResultBox/HBoxContainer/Guess.visible = true
 	for child in $ResultBox/HBoxContainer/Replies/Bars.get_children():
 		$ResultBox/HBoxContainer/Replies/Bars.remove_child(child)
 	for child in $ResultBox/HBoxContainer/Guess/Bars.get_children():
